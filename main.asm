@@ -1,4 +1,5 @@
 org 0x7c00
+bits 16
 
 string:
     times 10 db 0
