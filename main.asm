@@ -1,54 +1,22 @@
 org 0x7c00
+mov [diskNum], dl
 
-mov bp, 0x8000
-mov sp, bp
-mov bh, '~'
-push bx
+mov bx, 0x7e00
 
-jmp decimalNum
+mov ah, 2
+mov al, 1
+mov ch, 0
+mov dh, 0
+mov cl, 2
+mov dl, [diskNum]
+int 0x13
+mov ah, 0x0e
+mov al, [0x7e00]
+int 0x10
 
-decimalNum:
-    mov ah, 0
-    int 0x16
-    mov bh, al
-    push bx
-    cmp al, '/'
-    je printSpace
-
-continueFromSpace:
-    cmp al, '/'
-    je printOut
-    mov ah, 0x0e
-    int 0x10
-    jmp decimalNum
-
-printSpace:
-    mov ah, 0x0e
-    mov al, 32;
-    int 0x10
-    mov al, '/'
-    jmp continueFromSpace
-
-printOut:
-    mov ah, 0x0e
-    mov al, bh
-    cmp al, '/'
-    jne output
-    jmp continue
-
-continue:
-    cmp al, '~'
-    je exit
-    pop bx
-    jmp printOut
-
-output:
-    cmp al, '~'
-    je continue
-    int 0x10
-    jmp continue
-
-exit:
-    jmp $
+jmp $
+diskNum: db 0
 times 510-($-$$) db 0
 db 0x55, 0xaa
+
+times 512 db 'A'
