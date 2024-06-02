@@ -15,8 +15,9 @@ jmp CODE_SEG:start_protected_mode
 [bits 32]
 start_protected_mode:
     mov al, 'A'
-    mov ah, 0x0f
+    mov ah, 0xaf
     mov [0xb8000], ax
+    jmp $
 
 GDT_Start:
     null_descriptor:
@@ -47,6 +48,3 @@ exit:
 diskNum: db 0
 times 510-($-$$) db 0
 db 0x55, 0xaa
-
-db "Sector2", 0
-times 520-($-$$) db 0
