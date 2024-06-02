@@ -1,62 +1,48 @@
 org 0x7c00
-mov [diskNum], dl
 
-mov bx, 0x7e00
+cli
+lgdt[GDT_Descriptor]
+mov eax, cr0
+or eax, 1
+mov cr0, eax
+jmp CODE_SEG:start_protected_mode
 
-mov ah, 2
-mov al, 1
-mov ch, 0
-mov dh, 0
-mov cl, 2
-mov dl, [diskNum]
-int 0x13
-jc startErrorPrint1
-jnc startErrorPrint2
-startErrorPrint1:
-    mov bx, errorMsg1
-    jmp error1
-startErrorPrint2:
-    mov bx, errorMsg2
-    jmp error2
-continue:
-    mov ah, 0x0e
-    mov al, [0x7e00]
-    int 0x10
-    mov al, [0x7e01]
-    int 0x10
-    mov al, [0x7e02]
-    int 0x10
-    mov al, [0x7e03]
-    int 0x10
-    mov al, [0x7e04]
-    int 0x10
-    mov al, [0x7e05]
-    int 0x10
-    mov al, [0x7e06]
-    int 0x10
-    jmp exit
-error1:
-    mov ah, 0x0e
-    mov al, [bx]
-    int 0x10
-    inc bx
-    cmp al, 0
-    je continue
-    jmp error1
-error2:
-    mov ah, 0x0e
-    mov al, [bx]
-    int 0x10
-    inc bx
-    cmp al, 0
-    je continue
-    jmp error1
+[bits 32]
+start_protected_mode:
+    mov al, 'A'
+    mov ah, 0x0f
+    mov [0xb8000], ax
+
+GDT_Start:
+    null_descriptor:
+        dd 0
+        dd 0
+    code_descriptor:
+        dw 0xffff
+        dw 0
+        db 0
+        db 10011010
+        db 11001111
+        db 0
+    data_descriptor:
+        dw 0xffff
+        dw 0
+        db 0
+        db 10010010
+        db 11001111
+        db 0
+GDT_Descriptor:
+    dw GDT_End - GDT_Start - 1
+    dd GDT_Start
+GDT_End:
 
 exit:
     jmp $
 diskNum: db 0
-errorMsg1: db "Carry FLag: 1", 0
-errorMsg2: db "Carry Flag: 0", 0
+
+CODE_SEG equ code_descriptor - GDT_Start
+DATA_SEG equ data_descriptor - GDT_Start
+
 times 510-($-$$) db 0
 db 0x55, 0xaa
 
