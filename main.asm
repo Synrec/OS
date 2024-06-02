@@ -1,5 +1,4 @@
 org 0x7c00
-bits 16
 
 mov bp, 0x8000
 mov sp, bp
@@ -14,10 +13,21 @@ decimalNum:
     mov bh, al
     push bx
     cmp al, '/'
+    je printSpace
+
+continueFromSpace:
+    cmp al, '/'
     je printOut
     mov ah, 0x0e
     int 0x10
     jmp decimalNum
+
+printSpace:
+    mov ah, 0x0e
+    mov al, 32;
+    int 0x10
+    mov al, '/'
+    jmp continueFromSpace
 
 printOut:
     mov ah, 0x0e
