@@ -1,5 +1,10 @@
 org 0x7c00
 
+mov [diskNum], dl
+
+CODE_SEG equ code_descriptor - GDT_Start
+DATA_SEG equ data_descriptor - GDT_Start
+
 cli
 lgdt[GDT_Descriptor]
 mov eax, cr0
@@ -21,15 +26,15 @@ GDT_Start:
         dw 0xffff
         dw 0
         db 0
-        db 10011010
-        db 11001111
+        db 0b10011010
+        db 0b11001111
         db 0
     data_descriptor:
         dw 0xffff
         dw 0
         db 0
-        db 10010010
-        db 11001111
+        db 0b10010010
+        db 0b11001111
         db 0
 GDT_Descriptor:
     dw GDT_End - GDT_Start - 1
@@ -38,11 +43,8 @@ GDT_End:
 
 exit:
     jmp $
+
 diskNum: db 0
-
-CODE_SEG equ code_descriptor - GDT_Start
-DATA_SEG equ data_descriptor - GDT_Start
-
 times 510-($-$$) db 0
 db 0x55, 0xaa
 
